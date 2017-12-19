@@ -161,6 +161,7 @@ static const gchar *getstyle(const char *uri);
 static void setstyle(Client *c, const char *style);
 
 static void handleplumb(Client *c, WebKitWebView *w, const gchar *uri);
+static void handlehtml5(Client *c, const Arg *arg);
 
 static gboolean initdownload(WebKitWebView *v, WebKitDownload *o, Client *c);
 
@@ -718,6 +719,17 @@ handleplumb(Client *c, WebKitWebView *w, const gchar *uri)
 	spawn(c, &arg);
 }
 
+void
+handlehtml5(Client *c, const Arg *arg)
+{
+        Arg arg2;
+        char *uri;
+
+        uri = (char *)webkit_web_view_get_uri(c->view);
+        arg2 = (Arg)HTML5(uri);
+        spawn(c, &arg2);
+}
+
 gboolean
 initdownload(WebKitWebView *view, WebKitDownload *o, Client *c)
 {
@@ -873,6 +885,8 @@ loaduri(Client *c, const Arg *arg)
 		rp = realpath(uri, NULL);
 		u = g_strdup_printf("file://%s", rp);
 		free(rp);
+        } else if (*uri == ' ') {
+                u = g_strdup_printf("%s%s", searchengine, uri+1);
 	} else {
 		u = g_strrstr(uri, "://") || g_str_has_prefix(uri, "about:") ? g_strdup(uri)
 		    : g_strdup_printf("http://%s", uri);
@@ -1836,4 +1850,3 @@ main(int argc, char *argv[])
 
 	return EXIT_SUCCESS;
 }
-
